@@ -2,27 +2,26 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.viewsets import ModelViewSet
 
+from api.models import Stock
+from api.serializers import StockSerializer, UserSerializer
 
-# Serializers define the API representation.
-class UserSerializer(HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ['url', 'username', 'email', 'is_staff']
 
-# ViewSets define the view behavior.
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-# Routers provide an easy way of automatically determining the URL conf.
+
+class StockViewSet(ModelViewSet):
+    queryset = Stock.objects.all()
+    serializer_class = StockSerializer
+
+
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
+router.register(r'stocks', StockViewSet)
 
-# Wire up our API using automatic URL routing.
-# Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
