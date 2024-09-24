@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from rest_framework.serializers import HyperlinkedModelSerializer, ModelSerializer
+from rest_framework.serializers import DecimalField, HyperlinkedModelSerializer
 
 from api.models import Order, Stock
 
@@ -10,16 +10,19 @@ class UserSerializer(HyperlinkedModelSerializer):
         fields = ['url', 'username', 'email', 'is_staff']
 
 
-class StockSerializer(ModelSerializer):
+class StockSerializer(HyperlinkedModelSerializer):
+    # create endpoint should be for admin
+    # price = DecimalField(max_digits=10, decimal_places=2)
+
     class Meta:
         model = Stock
-        fields = ['name', 'price']
+        fields = ['url', 'name', 'price']
 
 
 class OrderSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Order
-        fields = ['amount', 'created_at']
+        fields = ['url', 'amount', 'created_at', 'user', 'stock']
 
 
 
