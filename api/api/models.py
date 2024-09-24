@@ -14,9 +14,7 @@ class Stock(Model):
     name = CharField(max_length=100, unique=True)
     # we store price as a decimal with 2 decimal places
     price = DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        help_text="Decimal with two places"
+        max_digits=10, decimal_places=2, help_text="Decimal with two places"
     )
 
     def __str__(self):

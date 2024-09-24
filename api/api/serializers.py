@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from rest_framework.serializers import HyperlinkedModelSerializer, ModelSerializer
+from rest_framework.serializers import HyperlinkedModelSerializer
 
 from api.models import Order, Stock
 
@@ -7,19 +7,16 @@ from api.models import Order, Stock
 class UserSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ['url', 'username', 'email', 'is_staff']
+        fields = ["url", "username", "email", "is_staff"]
 
 
 class StockSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Stock
-        fields = ['url', 'name', 'price']
+        fields = ["url", "name", "price"]
 
 
 class OrderSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Order
-        fields = ['url', 'amount', 'created_at', 'stock']
-
-
-
+        fields = ["url", "amount", "created_at", "stock"]
