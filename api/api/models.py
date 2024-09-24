@@ -1,4 +1,6 @@
 from django.conf import settings
+
+# isort: off
 from django.db.models import (
     CASCADE,
     CharField,
@@ -8,6 +10,8 @@ from django.db.models import (
     IntegerField,
     Model,
 )
+
+# isort: on
 
 
 class Stock(Model):
