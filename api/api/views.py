@@ -1,13 +1,24 @@
+import pandas as pd
 from django.contrib.auth import get_user_model
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.db import transaction
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ViewSet
 
 from api.models import Order, Stock
-from api.serializers import OrderSerializer, StockSerializer, UserSerializer
+
+# isort: off
+from api.serializers import (
+    BatchOrderUploadSerializer,
+    OrderSerializer,
+    StockSerializer,
+    UserSerializer,
+)
+
+# isort: on
 from api.services import get_shares
 
 UserModel = get_user_model()
@@ -46,6 +57,35 @@ class OrderViewSet(ModelViewSet):
         return Response(
             OrderSerializer(orders, many=True, context={"request": request}).data,
             status=status.HTTP_200_OK,
+        )
+
+
+class BatchOrderUploadViewset(ViewSet):
+    EXPECTED_COLUMNS = {"stock", "quantity"}
+    permission_classes = [IsAuthenticated]
+    serializer_class = BatchOrderUploadSerializer
+
+    def create(self, request):
+        file = request.FILES.get("file")
+        if not file:
+            raise ValidationError("File upload is required")
+        df_orders = pd.read_csv(file)
+        if set(df_orders.columns) != self.EXPECTED_COLUMNS:
+            raise ValidationError("Only columns allowed are: stock, quantity")
+        try:
+            with transaction.atomic():
+                for idx, row in df_orders.iterrows():
+                    user = self.request.user
+                    stock = Stock.objects.get(name=row["stock"])
+                    order = Order(user=user, stock=stock, amount=row["quantity"])
+                    # we opt for individual object creation instead
+                    # of bulk_create to trigger validations
+                    order.save()
+        except Stock.DoesNotExist:
+            raise ValidationError("Invalid stock name encountered")
+        return Response(
+            {"message": f"{len(df_orders.index)} orders successfully executed"},
+            status=status.HTTP_201_CREATED,
         )
 
 
