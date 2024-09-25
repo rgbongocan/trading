@@ -67,3 +67,12 @@ cron:
 ```
 
 You may have to `docker compose down cron && docker compose up -d cron` and for the new environment variable to take effect.
+
+### Testing
+
+To run all tests
+```
+docker compose exec -it api ./manage.py test
+```
+
+Test are split simply into two files: for models and for views

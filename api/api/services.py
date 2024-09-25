@@ -2,7 +2,7 @@ from django.db.models import F, Sum
 
 
 def get_id_from_url(url: str) -> int:
-    return url.rstrip("/").split("/")[-1]
+    return int(url.rstrip("/").split("/")[-1])
 
 
 def get_shares(user, stock) -> int:
