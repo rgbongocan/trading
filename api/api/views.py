@@ -8,7 +8,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from api.models import Order, Stock
 from api.serializers import OrderSerializer, StockSerializer, UserSerializer
-from api.services import get_id_from_url, get_shares
+from api.services import get_shares
 
 UserModel = get_user_model()
 
@@ -30,15 +30,6 @@ class OrderViewSet(ModelViewSet):
     serializer_class = OrderSerializer
 
     def perform_create(self, serializer):
-        data = self.request.data
-        amount = int(data.get("amount"))
-        stock_url = data.get("stock")
-        stock_id = get_id_from_url(stock_url)
-        stock = Stock.objects.get(pk=stock_id)
-        if amount < 0:
-            shares = get_shares(self.request.user, stock)
-            if amount + shares < 0:
-                raise PermissionDenied("You do not have enough shares to sell.")
         serializer.save(user=self.request.user)
 
     def retrieve(self, request, *args, **kwargs):
