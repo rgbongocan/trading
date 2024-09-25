@@ -30,6 +30,7 @@ class Stock(Model):
 
 
 class Order(Model):
+    # TODO: rename amount to quantity
     amount = IntegerField(help_text="Negative for a sell order")
     stock = ForeignKey(Stock, on_delete=CASCADE)
     user = ForeignKey(settings.AUTH_USER_MODEL, on_delete=CASCADE)
@@ -47,5 +48,5 @@ class Order(Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         total_shares = get_shares(self.user, self.stock)
-        if total_shares < 0:
+        if self.amount < 0 and total_shares < 0:
             raise NotEnoughShares("Not enough shares to sell")

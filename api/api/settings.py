@@ -150,3 +150,5 @@ LOGGING = {
         "level": "DEBUG",
     },
 }
+
+BATCH_ORDER_PATH = os.environ.get("BATCH_ORDER_PATH", "/tmp/orders.csv")
