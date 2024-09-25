@@ -77,7 +77,7 @@ class BatchOrderUploadViewset(ViewSet):
                 for idx, row in df_orders.iterrows():
                     user = self.request.user
                     stock = Stock.objects.get(name=row["stock"])
-                    order = Order(user=user, stock=stock, amount=row["quantity"])
+                    order = Order(user=user, stock=stock, quantity=row["quantity"])
                     # we opt for individual object creation instead
                     # of bulk_create to trigger validations
                     order.save()

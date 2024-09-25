@@ -25,7 +25,14 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("amount", models.IntegerField(help_text="Negative for a sell order")),
+                (
+                    "quantity",
+                    models.DecimalField(
+                        decimal_places=2,
+                        max_digits=10,
+                        help_text="A negative value means a sell order; otherwise is a buy order",
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "stock",
@@ -41,5 +48,11 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
+        ),
+        migrations.AddConstraint(
+            model_name="order",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("quantity", 0), _negated=True), name="non_zero"
+            ),
         ),
     ]
