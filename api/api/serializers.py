@@ -27,7 +27,7 @@ class StockSerializer(HyperlinkedModelSerializer):
 class OrderSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Order
-        fields = ["url", "amount", "created_at", "stock"]
+        fields = ["url", "quantity", "created_at", "stock"]
 
 
 class BatchOrderUploadSerializer(Serializer):

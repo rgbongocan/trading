@@ -11,8 +11,9 @@ from django.db.models import (
     DateTimeField,
     DecimalField,
     ForeignKey,
-    IntegerField,
     Model,
+    Q,
+    CheckConstraint,
 )
 
 # isort: on
@@ -30,24 +31,27 @@ class Stock(Model):
 
 
 class Order(Model):
-    # TODO: rename amount to quantity
-    # TODO: cannot be zero
-    amount = IntegerField(help_text="Negative for a sell order")
+    quantity = DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="A negative value means a sell order; otherwise is a buy order",
+    )
     stock = ForeignKey(Stock, on_delete=CASCADE)
     user = ForeignKey(settings.AUTH_USER_MODEL, on_delete=CASCADE)
     created_at = DateTimeField(auto_now_add=True)
 
-    @property
-    def value(self):
-        return f"{self.amount * self.stock.price}¤"
+    class Meta:
+        constraints = [CheckConstraint(check=~Q(quantity=0), name="non_zero")]
 
     def __str__(self):
-        action = "bought" if self.amount > 0 else "sold"
-        return f"{self.user.username} {action} {self.amount} units of {self.stock.name}"
+        action = "bought" if self.quantity > 0 else "sold"
+        return (
+            f"{self.user.username} {action} {self.quantity} units of {self.stock.name}"
+        )
 
     @transaction.atomic()
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         total_shares = get_shares(self.user, self.stock)
-        if self.amount < 0 and total_shares < 0:
+        if self.quantity < 0 and total_shares < 0:
             raise NotEnoughShares("Not enough shares to sell")
