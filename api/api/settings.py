@@ -149,6 +149,12 @@ LOGGING = {
         "handlers": ["console"],
         "level": "DEBUG",
     },
+    # "loggers": {
+    #     "api": {
+    #         'handlers': ['console'],
+    #         'level': 'DEBUG',
+    #     },
+    # }
 }
 
 BATCH_ORDER_PATH = os.environ.get("BATCH_ORDER_PATH", "/tmp/orders.csv")

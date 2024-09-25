@@ -16,7 +16,6 @@ services:
         condition: service_healthy
     env_file:
       - ./api/notsosecrets.env
-
   cron:
     restart: unless-stopped
     build:

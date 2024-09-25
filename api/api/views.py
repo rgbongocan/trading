@@ -105,7 +105,7 @@ class InvestmentViewSet(ViewSet):
             )
             .all()
         )
-        # could have a dedicated serializer for the reponse
+        # could have a dedicated serializer for the response
         return Response(
             {
                 "investments": [
