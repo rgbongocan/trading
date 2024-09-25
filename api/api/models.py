@@ -31,6 +31,7 @@ class Stock(Model):
 
 class Order(Model):
     # TODO: rename amount to quantity
+    # TODO: cannot be zero
     amount = IntegerField(help_text="Negative for a sell order")
     stock = ForeignKey(Stock, on_delete=CASCADE)
     user = ForeignKey(settings.AUTH_USER_MODEL, on_delete=CASCADE)

@@ -8,6 +8,7 @@ from api.views import (
     StockViewSet,
     TotalInvestmentView,
     UserViewSet,
+    BatchOrderUploadViewset,
 )
 
 # isort: on
@@ -16,7 +17,7 @@ router = DefaultRouter()
 router.register(r"users", UserViewSet)
 router.register(r"stocks", StockViewSet)
 router.register(r"orders", OrderViewSet)
-
+router.register(r"batch-order", BatchOrderUploadViewset, basename="batch-order-upload")
 urlpatterns = [
     path("", include(router.urls)),
     path(
