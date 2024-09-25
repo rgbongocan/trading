@@ -14,12 +14,27 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    env_file:
+      - ./api/notsosecrets.env
+
+  cron:
+    restart: unless-stopped
+    build:
+      context: ./api
+      dockerfile: cron.Dockerfile
+    command: supercronic crontab
+    ports:
+      - 8001:8000
+    volumes:
+      - ./api:/app/
+      - /app/.venv/
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./api/notsosecrets.env
     environment:
-      DJANGO_SUPERUSER_EMAIL: su@gmail.com
-      DJANGO_SUPERUSER_PASSWORD: su
-      POSTGRES_DB: trading
-      POSTGRES_USER: trading
-      POSTGRES_PASSWORD: trading
+      - BATCH_ORDER_COMMIT=false
   db:
     restart: always
     image: postgres:16.4

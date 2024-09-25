@@ -152,3 +152,4 @@ LOGGING = {
 }
 
 BATCH_ORDER_PATH = os.environ.get("BATCH_ORDER_PATH", "/tmp/orders.csv")
+BATCH_ORDER_COMMIT = os.environ.get("BATCH_ORDER_COMMIT") == "true"

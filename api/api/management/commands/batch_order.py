@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
+from api.exceptions import BatchOrdersNotCommitted
 from api.models import Order, Stock
 
 EXPECTED_COLUMNS = {"username", "stock", "quantity"}
@@ -29,8 +30,14 @@ class Command(BaseCommand):
                     # of bulk_create to trigger validations
                     order.save()
                 logging.info(f"{len(df_orders.index)} orders successfully executed")
+                if not settings.BATCH_ORDER_COMMIT:
+                    raise BatchOrdersNotCommitted()
         except FileNotFoundError:
             logging.error(f"{filepath} does not exist")
+        except BatchOrdersNotCommitted:
+            logging.error(
+                "Batch orders are not set to be committed. Check django settings."
+            )
         except Exception as e:
             logging.error("Exception encountered, rolling back any orders made")
             raise e
