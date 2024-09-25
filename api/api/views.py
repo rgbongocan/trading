@@ -2,10 +2,11 @@ import pandas as pd
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
+from django.db.models import DecimalField, ExpressionWrapper, F, Sum
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ViewSet
 
 from api.models import Order, Stock
@@ -89,14 +90,43 @@ class BatchOrderUploadViewset(ViewSet):
         )
 
 
-# consider putting under order viewset?
-class TotalInvestmentView(APIView):
+class InvestmentViewSet(ViewSet):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, stock_id, *args, **kwargs):
-        print(args, kwargs)
+    def list(self, request):
         user = self.request.user
-        stock = Stock.objects.get(pk=stock_id)
+        stocks_with_total_quantity = (
+            Stock.objects.filter(order__user=user)
+            .annotate(
+                shares=Sum("order__quantity"),
+                value=ExpressionWrapper(
+                    Sum("order__quantity") * F("price"), output_field=DecimalField()
+                ),
+            )
+            .all()
+        )
+        # could have a dedicated serializer for the reponse
+        return Response(
+            {
+                "investments": [
+                    {
+                        "url": request.build_absolute_uri(
+                            reverse("investments-detail", kwargs={"pk": s.id})
+                        ),
+                        "name": s.name,
+                        "price": s.price,
+                        "shares": s.shares,
+                        "value": s.value,
+                    }
+                    for s in stocks_with_total_quantity
+                ]
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    def retrieve(self, request, pk=None):
+        user = self.request.user
+        stock = Stock.objects.get(pk=pk)
         shares = get_shares(user, stock)
         return Response(
             {
