@@ -1,3 +1,39 @@
+### About
+
+This is a REST API written with Django that implements _simplified_ stock trading. The following holds true in the scope of this project:
+
+- A user can buy an unlimited quantity of stock
+- A user can only sell stock that they have
+- A negative order quantity means the user intends to sell
+- Orders are executed immediately. There are no concepts of limit and stop orders.
+
+### Getting started
+
+```
+docker compose up -d
+```
+to get your environment up and running. There are three running services:
+
+> `api` - Django web server
+`db` - Postgres database
+`cron` - Periodically consumes a batch order file (see below)
+
+```
+docker compose exec -it api ./manage.py migrate`
+```
+to initialize your database
+
+```
+docker compose exec -it api python manage.py createsuperuser --username su --email su@gmail.com
+```
+to create an admin user. You can modify the credentials but make sure to edit the corresponding values in `notsosecrets.env`
+
+With this, you can create user/s by logging in as an admin on http://localhost:8000/admin/auth/user/
+
+Go back to http://localhost:8000 to login as your created user and use the endpoints.
+
+_Hint: You can only create new stocks as an admin user._
+
 ### Batch ordering
 
 For batch ordering, the following columns are expected in the csv file
