@@ -1,4 +1,8 @@
 from django.conf import settings
+from django.db import transaction
+
+from api.exceptions import NotEnoughShares
+from api.services import get_shares
 
 # isort: off
 from django.db.models import (
@@ -26,6 +30,7 @@ class Stock(Model):
 
 
 class Order(Model):
+    # TODO: rename amount to quantity
     amount = IntegerField(help_text="Negative for a sell order")
     stock = ForeignKey(Stock, on_delete=CASCADE)
     user = ForeignKey(settings.AUTH_USER_MODEL, on_delete=CASCADE)
@@ -38,3 +43,10 @@ class Order(Model):
     def __str__(self):
         action = "bought" if self.amount > 0 else "sold"
         return f"{self.user.username} {action} {self.amount} units of {self.stock.name}"
+
+    @transaction.atomic()
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        total_shares = get_shares(self.user, self.stock)
+        if self.amount < 0 and total_shares < 0:
+            raise NotEnoughShares("Not enough shares to sell")
