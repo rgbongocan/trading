@@ -68,6 +68,15 @@ cron:
 
 You may have to `docker compose down cron && docker compose up -d cron` and for the new environment variable to take effect.
 
+### Formatting and linting
+
+If you run `poetry install` on your host, you should already have `pre-commit` installed. Otherwise, you can also check installation instructions on https://pre-commit.com/#install.
+
+Run `pre-commit install` to run the hooks that will lint, autoformat, etc all the files you've made change to.
+You should already have pre-commit in your poetry environment
+
+You can also run `pre-commit run --all-files` if you want to force run the hooks without making a commit
+
 ### Testing
 
 To run all tests
